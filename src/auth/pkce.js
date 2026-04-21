@@ -1,12 +1,18 @@
 /**
  * src/auth/pkce.js
  * PKCE (Proof Key for Code Exchange) OAuth 2.0 helpers for Google Sign-In.
- * Responsible for generating the code verifier/challenge, initiating the OAuth
- * redirect, and exchanging the auth code for tokens. No client secret is needed.
+ * Responsible for generating the code verifier/challenge and initiating the OAuth redirect.
+ * Token exchange and refresh are proxied through the Cloud Function (see services/cloudFunction.js)
+ * so GOOGLE_CLIENT_SECRET never reaches the browser.
  *
  * Flow: generateCodeVerifier → generateCodeChallenge → initiateOAuthFlow (redirects)
  *       → on callback: exchangeCodeForTokens → on expiry: refreshAccessToken
  */
+
+import {
+  exchangeCodeForTokens as cfExchangeCode,
+  refreshAccessToken as cfRefreshToken,
+} from '../services/cloudFunction.js'
 
 const VERIFIER_KEY = 'pkce_code_verifier'
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
@@ -94,7 +100,8 @@ export async function initiateOAuthFlow() {
 
 /**
  * Exchanges the authorization code for access and refresh tokens.
- * Retrieves the stored PKCE verifier from sessionStorage.
+ * Retrieves the stored PKCE verifier from sessionStorage, then proxies
+ * the exchange through the Cloud Function so client_secret stays server-side.
  * @param {string} code - The authorization code from the OAuth callback URL.
  * @returns {Promise<{ access_token: string, refresh_token: string, expires_in: number, id_token: string }>}
  */
@@ -104,33 +111,17 @@ export async function exchangeCodeForTokens(code) {
     throw new Error('No PKCE code verifier found in sessionStorage. The OAuth flow may have been initiated in a different tab or session.')
   }
 
-  const params = new URLSearchParams({
-    client_id: CLIENT_ID,
-    redirect_uri: REDIRECT_URI,
-    grant_type: 'authorization_code',
-    code,
-    code_verifier: verifier,
-  })
-
-  const response = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: params.toString(),
-  })
-
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}))
-    throw new Error(`Token exchange failed: ${err.error_description || err.error || response.statusText}`)
-  }
+  const tokens = await cfExchangeCode({ code, codeVerifier: verifier, redirectUri: REDIRECT_URI })
 
   // Clean up verifier — it's single-use
   sessionStorage.removeItem(VERIFIER_KEY)
 
-  return response.json()
+  return tokens
 }
 
 /**
- * Uses a refresh token to obtain a new access token from Google.
+ * Obtains a new access token using a refresh token, proxied through the Cloud Function
+ * so client_secret stays server-side.
  * @param {string} refreshToken - The stored refresh token.
  * @returns {Promise<{ access_token: string, expires_in: number, id_token?: string }>}
  */
@@ -139,22 +130,5 @@ export async function refreshAccessToken(refreshToken) {
     throw new Error('No refresh token provided to refreshAccessToken.')
   }
 
-  const params = new URLSearchParams({
-    client_id: CLIENT_ID,
-    grant_type: 'refresh_token',
-    refresh_token: refreshToken,
-  })
-
-  const response = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: params.toString(),
-  })
-
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}))
-    throw new Error(`Token refresh failed: ${err.error_description || err.error || response.statusText}`)
-  }
-
-  return response.json()
+  return cfRefreshToken(refreshToken)
 }

@@ -14,6 +14,7 @@
 
 const { gradeSubmission } = require('./handlers/grade.js')
 const { unlockContent } = require('./handlers/unlock.js')
+const { exchangeToken, refreshToken } = require('./handlers/tokenExchange.js')
 
 /**
  * Main Cloud Function handler.
@@ -43,7 +44,11 @@ exports.classroomApp = async (req, res) => {
       return gradeSubmission(req, res)
     case 'unlock':
       return unlockContent(req, res)
+    case 'exchangeToken':
+      return exchangeToken(req, res)
+    case 'refreshToken':
+      return refreshToken(req, res)
     default:
-      return res.status(400).json({ error: `Unknown action: "${action}". Expected "grade" or "unlock".` })
+      return res.status(400).json({ error: `Unknown action: "${action}". Expected "grade", "unlock", "exchangeToken", or "refreshToken".` })
   }
 }

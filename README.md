@@ -140,7 +140,7 @@ https://YOUR_USERNAME.github.io/YOUR_REPO_NAME/
 
 > 📸 _[Screenshot: OAuth client ID creation form with origins and redirect URIs filled in]_
 
-**4e.** Click **Create**. A dialog shows your **Client ID** — copy it and keep it somewhere safe. You do not need the client secret.
+**4e.** Click **Create**. A dialog shows your **Client ID** and **Client Secret** — copy both and keep them somewhere safe.
 
 > 📸 _[Screenshot: OAuth client ID dialog with Client ID highlighted]_
 
@@ -192,8 +192,9 @@ Replace `YOUR_PROJECT_ID` with your project ID (same one from step 6a). This onl
 cp cloud-function/.env.yaml.example cloud-function/.env.yaml
 ```
 
-Open `cloud-function/.env.yaml` in a text editor and replace the three placeholder values:
+Open `cloud-function/.env.yaml` in a text editor and replace the four placeholder values:
 - `YOUR_CLIENT_ID` — the OAuth Client ID from Step 4
+- `YOUR_CLIENT_SECRET` — the OAuth Client Secret from Step 4
 - `YOUR_USERNAME` — your GitHub username
 - `PASTE_KEY_JSON_HERE` — the full contents of the service account `.json` key file (paste as-is, no escaping needed)
 
