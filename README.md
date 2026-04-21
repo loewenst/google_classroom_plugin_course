@@ -174,7 +174,16 @@ gcloud config set project YOUR_PROJECT_ID
 
 > Your project ID is visible in the Google Cloud Console header (it looks like `my-classroom-app-123456`).
 
-**6b.** Open the downloaded service account `.json` key file in a text editor and copy its entire contents as a single line (it will look like `{"type":"service_account",...}`).
+**6b.** Copy the env vars template:
+
+```bash
+cp cloud-function/.env.yaml.example cloud-function/.env.yaml
+```
+
+Open `cloud-function/.env.yaml` in a text editor and replace the three placeholder values:
+- `YOUR_CLIENT_ID` — the OAuth Client ID from Step 4
+- `YOUR_USERNAME` — your GitHub username
+- `PASTE_KEY_JSON_HERE` — the full contents of the service account `.json` key file (paste as-is, no escaping needed)
 
 **6c.** From the `cloud-function/` directory, deploy the function:
 
@@ -185,13 +194,8 @@ gcloud functions deploy classroomApp \
   --trigger-http \
   --allow-unauthenticated \
   --region us-central1 \
-  --set-env-vars "GOOGLE_CLIENT_ID=YOUR_CLIENT_ID,ALLOWED_ORIGIN=https://YOUR_USERNAME.github.io,GOOGLE_SERVICE_ACCOUNT_KEY=PASTE_KEY_JSON_HERE"
+  --env-vars-file .env.yaml
 ```
-
-Replace:
-- `YOUR_CLIENT_ID` — the OAuth Client ID from Step 4
-- `YOUR_USERNAME` — your GitHub username
-- `PASTE_KEY_JSON_HERE` — the full contents of the service account JSON key (wrap in single quotes if your shell requires it)
 
 **6d.** After deployment completes, the terminal shows a **URL** for your function. Copy it — it looks like:
 ```

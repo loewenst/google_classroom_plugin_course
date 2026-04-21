@@ -9,7 +9,7 @@
  *     --runtime nodejs20 \
  *     --trigger-http \
  *     --allow-unauthenticated \
- *     --set-env-vars GOOGLE_CLIENT_ID=...,ALLOWED_ORIGIN=...,GOOGLE_SERVICE_ACCOUNT_KEY=...
+ *     --env-vars-file .env.yaml
  */
 
 const { gradeSubmission } = require('./handlers/grade.js')
