@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.env
+CLAUDE.md
+service_account_key.json
+cloud-function/.env.yaml

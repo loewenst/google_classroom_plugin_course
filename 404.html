@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<!--
+  public/404.html
+  GitHub Pages SPA fallback. GitHub Pages serves this for any unknown path.
+  This script rewrites the URL into a hash-based route so HashRouter picks it up correctly.
+  Technique: store the full URL in sessionStorage, redirect to index.html (root), then
+  the main index.html reads it back and replaces the URL via history.replaceState.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Google Classroom Plugin</title>
+    <script>
+      // GitHub Pages 404 SPA redirect hack.
+      // Converts the path + query + hash into a single query string parameter,
+      // then redirects to the root index.html which will restore the URL.
+      var segmentCount = 1
+      var l = window.location
+      l.replace(
+        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+        l.pathname.split('/').slice(0, 1 + segmentCount).join('/') + '/?p=/' +
+        l.pathname.slice(1).split('/').slice(segmentCount).join('/').replace(/&/g, '~and~') +
+        (l.search ? '&q=' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+        l.hash
+      )
+    </script>
+  </head>
+  <body>
+    <p>Redirecting...</p>
+  </body>
+</html>
