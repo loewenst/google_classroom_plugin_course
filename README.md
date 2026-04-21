@@ -202,7 +202,7 @@ Open `cloud-function/.env.yaml` in a text editor and replace the three placehold
 ```bash
 cd cloud-function
 gcloud functions deploy classroomApp \
-  --runtime nodejs20 \
+  --runtime nodejs22 \
   --trigger-http \
   --allow-unauthenticated \
   --region us-central1 \

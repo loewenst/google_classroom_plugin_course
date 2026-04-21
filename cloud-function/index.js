@@ -6,7 +6,7 @@
  *
  * Deploy command (from cloud-function/ directory):
  *   gcloud functions deploy classroomApp \
- *     --runtime nodejs20 \
+ *     --runtime nodejs22 \
  *     --trigger-http \
  *     --allow-unauthenticated \
  *     --env-vars-file .env.yaml
