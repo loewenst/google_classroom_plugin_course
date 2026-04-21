@@ -75,6 +75,7 @@ npm install
 - Google Sheets API
 - Google Drive API
 - Cloud Functions API
+- Cloud Run API
 
 > 📸 _[Screenshot: APIs & Services Library with search bar]_
 
@@ -174,7 +175,18 @@ gcloud config set project YOUR_PROJECT_ID
 
 > Your project ID is visible in the Google Cloud Console header (it looks like `my-classroom-app-123456`).
 
-**6b.** Copy the env vars template:
+**6b.** Grant the Cloud Build service account the permissions it needs to deploy the function:
+
+```bash
+PROJECT_NUMBER=$(gcloud projects describe YOUR_PROJECT_ID --format='value(projectNumber)')
+gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
+  --member="serviceAccount:${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com" \
+  --role="roles/iam.serviceAccountUser"
+```
+
+Replace `YOUR_PROJECT_ID` with your project ID (same one from step 6a). This only needs to be done once per project.
+
+**6c.** Copy the env vars template:
 
 ```bash
 cp cloud-function/.env.yaml.example cloud-function/.env.yaml
@@ -185,7 +197,7 @@ Open `cloud-function/.env.yaml` in a text editor and replace the three placehold
 - `YOUR_USERNAME` — your GitHub username
 - `PASTE_KEY_JSON_HERE` — the full contents of the service account `.json` key file (paste as-is, no escaping needed)
 
-**6c.** From the `cloud-function/` directory, deploy the function:
+**6d.** From the `cloud-function/` directory, deploy the function:
 
 ```bash
 cd cloud-function
@@ -197,7 +209,7 @@ gcloud functions deploy classroomApp \
   --env-vars-file .env.yaml
 ```
 
-**6d.** After deployment completes, the terminal shows a **URL** for your function. Copy it — it looks like:
+**6e.** After deployment completes, the terminal shows a **URL** for your function. Copy it — it looks like:
 ```
 https://us-central1-YOUR_PROJECT_ID.cloudfunctions.net/classroomApp
 ```
